@@ -66,7 +66,6 @@ export default function HomePage({ onGoToProfile }: HomePageProps) {
                 </Text>
               </View>
             </View>
-            <Text style={styles.arrowIcon}>→</Text>
           </View>
         </TouchableOpacity>
 
@@ -121,7 +120,7 @@ export default function HomePage({ onGoToProfile }: HomePageProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#1a1a1a',
   },
   topBar: {
     flexDirection: 'row',
@@ -145,8 +144,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
-  medMeetCard: {
-    backgroundColor: '#16213e',
+  medMeetCard: {    
+    backgroundColor: '#20AB7D',
     borderRadius: 16,
     padding: 40,
     marginBottom: 24,
@@ -183,13 +182,8 @@ const styles = StyleSheet.create({
   },
   medMeetDescription: {
     fontSize: 14,
-    color: '#b8c5d6',
+    color: '#ffffff',
     lineHeight: 20,
-  },
-  arrowIcon: {
-    fontSize: 32,
-    color: '#4a90e2',
-    fontWeight: 'bold',
   },
   actionCardsContainer: {
     flexDirection: 'row',
@@ -197,7 +191,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   actionCard: {
-    backgroundColor: '#16213e',
+    backgroundColor: '#20AB7D',
     borderRadius: 16,
     padding: 40,
     width: '48%',
@@ -223,11 +217,11 @@ const styles = StyleSheet.create({
   },
   bottomNav: {
     flexDirection: 'row',
-    backgroundColor: '#16213e',
+    backgroundColor: '#20AB7D',
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderTopWidth: 1,
-    borderTopColor: '#0f3460',
+    borderTopColor: '#1a8f6a',
   },
   navItem: {
     flex: 1,
@@ -236,6 +230,6 @@ const styles = StyleSheet.create({
   navIcon: {
     width: 24,
     height: 24,
-    tintColor: '#4a90e2',
+    tintColor: '#FFFFFF',
   },
 });
