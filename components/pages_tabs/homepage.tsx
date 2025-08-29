@@ -25,6 +25,10 @@ export default function HomePage({ onGoToProfile }: HomePageProps) {
     // Navigate to herbal shop
   };
 
+  const handleBookAppointment = () => {
+    // Navigate to appointment booking
+  };
+
   const handleHome = () => {
     // Already on home
   };
@@ -88,6 +92,24 @@ export default function HomePage({ onGoToProfile }: HomePageProps) {
             <Text style={styles.actionCardText}>HERBAL SHOP</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Book Doctor Appointment Card */}
+        <TouchableOpacity style={styles.medMeetCard} onPress={handleBookAppointment}>
+          <View style={styles.medMeetContent}>
+            <View style={styles.medMeetLeft}>
+              <Image 
+                source={require('../../assets/images/appointment.jpg')}
+                style={styles.medMeetIcon}
+              />
+              <View style={styles.medMeetText}>
+                <Text style={styles.medMeetTitle}>APPOINTMENT</Text>
+                <Text style={styles.medMeetDescription}>
+                  BOOK AN APPOINTMENT FOR YOUR DOCTOR
+                </Text>
+              </View>
+            </View>
+          </View>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Bottom Navigation Bar */}
@@ -146,7 +168,7 @@ const styles = StyleSheet.create({
   },
   medMeetCard: {    
     backgroundColor: '#20AB7D',
-    borderRadius: 16,
+    borderRadius: 10,
     padding: 40,
     marginBottom: 24,
     elevation: 4,
@@ -192,7 +214,7 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     backgroundColor: '#20AB7D',
-    borderRadius: 16,
+    borderRadius: 10,
     padding: 40,
     width: '48%',
     alignItems: 'center',
