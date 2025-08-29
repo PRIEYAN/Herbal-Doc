@@ -160,7 +160,7 @@ export default function SignupPage({ onGoToLogin, onSuccessfulAuth }: SignupPage
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#F8F9FA',
   },
   content: {
     flex: 1,
@@ -182,24 +182,31 @@ const styles = StyleSheet.create({
     marginBottom: -8,
   },
   logoDoc: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#2C3E50',
   },
   form: {
     marginBottom: 40,
   },
   inputContainer: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     marginBottom: 24,
     overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#20AB7D',
   },
   inputField: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
   },
   inputIcon: {
     fontSize: 20,
@@ -208,18 +215,23 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#FFFFFF',
+    color: '#2C3E50',
   },
   separator: {
     height: 1,
-    backgroundColor: '#3a3a3a',
-    marginHorizontal: 16,
+    backgroundColor: '#E9ECEF',
+    marginHorizontal: 20,
   },
   signupButton: {
     backgroundColor: '#20AB7D',
-    paddingVertical: 16,
-    borderRadius: 12,
+    paddingVertical: 18,
+    borderRadius: 16,
     alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
   },
   signupButtonDisabled: {
     opacity: 0.6,
@@ -227,7 +239,7 @@ const styles = StyleSheet.create({
   signupButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   footer: {
     flexDirection: 'row',
@@ -236,27 +248,27 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   footerText: {
-    color: '#999',
+    color: '#6C757D',
     fontSize: 14,
   },
   loginText: {
-    color: '#4CAF50',
+    color: '#20AB7D',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   legalFooter: {
     alignItems: 'center',
     marginTop: 'auto',
   },
   legalText: {
-    color: '#999',
+    color: '#6C757D',
     fontSize: 12,
     textAlign: 'center',
     marginBottom: 4,
   },
   termsText: {
-    color: '#4CAF50',
+    color: '#20AB7D',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });

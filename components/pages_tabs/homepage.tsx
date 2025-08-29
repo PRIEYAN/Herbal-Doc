@@ -10,11 +10,14 @@ import {
 
 interface HomePageProps {
   onGoToProfile?: () => void;
+  onGoToMedMeet?: () => void;
 }
 
-export default function HomePage({ onGoToProfile }: HomePageProps) {
+export default function HomePage({ onGoToProfile, onGoToMedMeet }: HomePageProps) {
   const handleMedMeet = () => {
-    // Navigate to MedMeet functionality
+    if (onGoToMedMeet) {
+      onGoToMedMeet();
+    }
   };
 
   const handleChatWithAI = () => {
@@ -142,7 +145,7 @@ export default function HomePage({ onGoToProfile }: HomePageProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#F8F9FA',
   },
   topBar: {
     flexDirection: 'row',
@@ -151,31 +154,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E9ECEF',
   },
   greeting: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#2C3E50',
   },
   profileIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#20AB7D',
   },
   content: {
     flex: 1,
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
   medMeetCard: {    
-    backgroundColor: '#20AB7D',
-    borderRadius: 10,
-    padding: 40,
-    marginBottom: 24,
-    elevation: 4,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 20,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#20AB7D',
   },
   medMeetContent: {
     flexDirection: 'row',
@@ -188,70 +199,77 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   medMeetIcon: {
-    width: 48,
-    height: 48,
+    width: 56,
+    height: 56,
     marginRight: 16,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   medMeetText: {
     flex: 1,
   },
   medMeetTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#2C3E50',
+    marginBottom: 6,
   },
   medMeetDescription: {
     fontSize: 14,
-    color: '#ffffff',
+    color: '#6C757D',
     lineHeight: 20,
   },
   actionCardsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   actionCard: {
-    backgroundColor: '#20AB7D',
-    borderRadius: 10,
-    padding: 40,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
     width: '48%',
     alignItems: 'center',
-    elevation: 4,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    borderTopWidth: 3,
+    borderTopColor: '#20AB7D',
   },
   actionCardIcon: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     marginBottom: 12,
-    borderRadius: 8,
+    borderRadius: 10,
   },
   actionCardText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#2C3E50',
     textAlign: 'center',
     lineHeight: 18,
   },
   bottomNav: {
     flexDirection: 'row',
-    backgroundColor: '#20AB7D',
-    paddingVertical: 16,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 18,
     paddingHorizontal: 20,
     borderTopWidth: 1,
-    borderTopColor: '#1a8f6a',
+    borderTopColor: '#E9ECEF',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   navItem: {
     flex: 1,
     alignItems: 'center',
   },
   navIcon: {
-    width: 24,
-    height: 24,
-    tintColor: '#FFFFFF',
+    width: 26,
+    height: 26,
+    tintColor: '#20AB7D',
   },
 });

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/Colors';
 
 const slogans = [
   'Home Remedies, Always Easy',
@@ -69,7 +68,7 @@ const { width, height } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: '#F8F9FA',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -77,24 +76,37 @@ const styles = StyleSheet.create({
   logoContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 50,
+    marginBottom: 20,
   },
   logo: {
     width: 200,
     height: 200,
-    borderRadius: 10,
+    borderRadius: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   sloganContainer: {
-    marginBottom: 40,
+    marginBottom: 50,
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 30,
+    paddingVertical: 20,
+    borderRadius: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
   },
   slogan: {
-    fontSize: 24,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: '700',
     textAlign: 'center',
-    color: Colors.light.text,
-    lineHeight: 32,
-    paddingHorizontal: 20,
+    color: '#2C3E50',
+    lineHeight: 30,
   },
   buttonContainer: {
     position: 'absolute',
@@ -104,23 +116,20 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   button: {
-    backgroundColor: '#406231',
-    paddingVertical: 16,
+    backgroundColor: '#20AB7D',
+    paddingVertical: 18,
     paddingHorizontal: 32,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
+    elevation: 4,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 }); 
