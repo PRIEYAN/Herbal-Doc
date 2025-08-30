@@ -11,9 +11,10 @@ import {
 interface HomePageProps {
   onGoToProfile?: () => void;
   onGoToMedMeet?: () => void;
+  onGoToHebDocAi?: () => void;
 }
 
-export default function HomePage({ onGoToProfile, onGoToMedMeet }: HomePageProps) {
+export default function HomePage({ onGoToProfile, onGoToMedMeet, onGoToHebDocAi }: HomePageProps) {
   const handleMedMeet = () => {
     if (onGoToMedMeet) {
       onGoToMedMeet();
@@ -21,7 +22,9 @@ export default function HomePage({ onGoToProfile, onGoToMedMeet }: HomePageProps
   };
 
   const handleChatWithAI = () => {
-    // Navigate to AI chat
+    if (onGoToHebDocAi) {
+      onGoToHebDocAi();
+    }
   };
 
   const handleHerbalShop = () => {
