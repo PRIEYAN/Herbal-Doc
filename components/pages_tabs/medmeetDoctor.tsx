@@ -1,6 +1,5 @@
-import axios from 'axios';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Alert,
   Image,
@@ -27,20 +26,29 @@ interface DoctorDetails {
 export default function MedMeetDoctorPage() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  
+  // Get all the doctor details passed from the previous page
   const doctorName = params.doctorName as string;
+  const doctorId = params.doctorId as string;
+  const doctorSpecialization = params.doctorSpecialization as string;
+  const doctorHospital = params.doctorHospital as string;
+  const doctorAbout = params.doctorAbout as string;
+  const doctorRating = params.doctorRating as string;
+  const doctorPhone = params.doctorPhone as string;
+  const doctorEmail = params.doctorEmail as string;
 
-  // Static doctor details - in real app, fetch from API based on doctorName
+  // Create doctor details object from passed parameters
   const doctorDetails: DoctorDetails = {
-    name: doctorName || "Dr. PrajinKrishna",
-    phoneNumber: "+91 98765 43210",
-    email: "dr.prajinkrishna@herbaldoc.com",
-    nmrNumber: "NMR123456789",
-    hospital: "Herbal Care Medical Center",
-    specialization: "MBBS, Respiratory Medicine",
-    aboutMe: "I have completed my master's degree abroad and I mainly focus on asthma and breathing-related problems. With over 8 years of experience in respiratory medicine, I specialize in treating chronic respiratory conditions, asthma, COPD, and other breathing disorders. I believe in combining traditional herbal remedies with modern medical practices to provide comprehensive care to my patients.",
-    booked: "none",
+    name: doctorName || "Dr. Unknown",
+    phoneNumber: doctorPhone || "Not available",
+    email: doctorEmail || "Not available",
+    nmrNumber: params.doctorNmrNumber as string || "Not available",
+    hospital: doctorHospital || "Not specified",
+    specialization: doctorSpecialization || "General Medicine",
+    aboutMe: doctorAbout || "No information available",
+    booked: "none", // Default to available
     bookedBy: "",
-    image: require('../../assets/images/doctor1.png')
+    image: require('../../assets/images/doctorlogo.jpg')
   };
 
   const handleBack = () => {
@@ -66,62 +74,6 @@ export default function MedMeetDoctorPage() {
     );
   };
 
-  useEffect(() => {
-    testServerConnection();
-    testTokenValidity();
-    fetchDoctors(); // <-- This calls the axios function
-  }, []);
-
-  const testServerConnection = async () => {
-    try {
-      const response = await axios.get('http://10.10.45.109:5001/consumer/medmeet/getDoctors');
-      console.log('Server connection successful:', response.data);
-    } catch (error) {
-      console.error('Server connection failed:', error);
-      Alert.alert('Error', 'Could not connect to the server. Please check your network or server status.');
-    }
-  };
-
-  const testTokenValidity = async () => {
-    try {
-      const token = 'YOUR_JWT_TOKEN'; // Replace with your actual token
-      const response = await axios.post('http://10.10.45.109:5001/consumer/auth/getDoctors', 
-        { jwt: token },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          timeout: 10000, // 10 second timeout
-        }
-      );
-      console.log('Token validity test successful:', response.data);
-    } catch (error) {
-      console.error('Token validity test failed:', error);
-      Alert.alert('Error', 'Token is invalid or expired. Please log in again.');
-    }
-  };
-
-  const fetchDoctors = async () => {
-    try {
-      const token = 'YOUR_JWT_TOKEN'; // Replace with your actual token
-      const response = await axios.post('http://10.10.45.109:5001/consumer/auth/getDoctors', 
-        { jwt: token },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          timeout: 10000, // 10 second timeout
-        }
-      );
-      console.log('Doctors fetched successfully:', response.data);
-      // In a real app, you would parse response.data to get doctor details
-      // For now, we'll just log the response
-    } catch (error) {
-      console.error('Failed to fetch doctors:', error);
-      Alert.alert('Error', 'Failed to fetch doctor details. Please try again later.');
-    }
-  };
-
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
@@ -142,6 +94,10 @@ export default function MedMeetDoctorPage() {
         <Text style={styles.doctorName}>{doctorDetails.name}</Text>
         <Text style={styles.doctorSpecialization}>{doctorDetails.specialization}</Text>
         <Text style={styles.doctorHospital}>{doctorDetails.hospital}</Text>
+        <View style={styles.ratingContainer}>
+          <Text style={styles.ratingText}>{doctorRating || "0"}/5</Text>
+          <Text style={styles.starIcon}>⭐</Text>
+        </View>
       </View>
 
       {/* Contact Information */}
@@ -284,6 +240,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6C757D',
     textAlign: 'center',
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  ratingText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2C3E50',
+  },
+  starIcon: {
+    fontSize: 18,
+    marginLeft: 4,
   },
   infoSection: {
     backgroundColor: '#FFFFFF',

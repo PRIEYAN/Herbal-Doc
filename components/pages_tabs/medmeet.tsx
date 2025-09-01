@@ -136,7 +136,8 @@ export default function MedMeetPage({ onGoBack }: MedMeetPageProps) {
         doctorAbout: doctor.aboutme,
         doctorRating: doctor.rating.toString(),
         doctorPhone: doctor.phonenumber,
-        doctorEmail: doctor.email
+        doctorEmail: doctor.email,
+        doctorNmrNumber: doctor.nmr_number
       }
     });
   };
