@@ -91,15 +91,8 @@ const styles = StyleSheet.create({
   sloganContainer: {
     marginBottom: 50,
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     paddingHorizontal: 30,
     paddingVertical: 20,
-    borderRadius: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
   },
   slogan: {
     fontSize: 22,

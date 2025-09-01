@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import {
     Image,
@@ -12,9 +13,16 @@ interface HomePageProps {
   onGoToProfile?: () => void;
   onGoToMedMeet?: () => void;
   onGoToHebDocAi?: () => void;
+  onGoToHerbalShop?: () => void;
 }
 
-export default function HomePage({ onGoToProfile, onGoToMedMeet, onGoToHebDocAi }: HomePageProps) {
+export default function HomePage({ onGoToProfile, onGoToMedMeet, onGoToHebDocAi, onGoToHerbalShop }: HomePageProps) {
+  const router = useRouter();
+
+  const handleBack = () => {
+    router.back();
+  };
+
   const handleMedMeet = () => {
     if (onGoToMedMeet) {
       onGoToMedMeet();
@@ -28,7 +36,9 @@ export default function HomePage({ onGoToProfile, onGoToMedMeet, onGoToHebDocAi 
   };
 
   const handleHerbalShop = () => {
-    // Navigate to herbal shop
+    if (onGoToHerbalShop) {
+      onGoToHerbalShop();
+    }
   };
 
   const handleBookAppointment = () => {
@@ -51,6 +61,9 @@ export default function HomePage({ onGoToProfile, onGoToMedMeet, onGoToHebDocAi 
     <View style={styles.container}>
       {/* Top Bar */}
       <View style={styles.topBar}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
         <Text style={styles.greeting}>HELLO, PRIEYAN</Text>
         <TouchableOpacity onPress={onGoToProfile}>
           <Image 
@@ -160,6 +173,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
+  },
+  backButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#E9ECEF',
+    borderRadius: 8,
+  },
+  backButtonText: {
+    fontSize: 14,
+    color: '#2C3E50',
   },
   greeting: {
     fontSize: 20,

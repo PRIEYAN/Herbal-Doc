@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     KeyboardAvoidingView,
@@ -22,6 +23,7 @@ interface ChatMessage {
 }
 
 export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
+  const router = useRouter();
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -37,6 +39,14 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
       timestamp: new Date()
     }
   ]);
+
+  const handleBack = () => {
+    if (onGoBack) {
+      onGoBack();
+    } else {
+      router.back();
+    }
+  };
 
   const handleSendMessage = () => {
     if (message.trim()) {
@@ -91,6 +101,9 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
     >
       {/* Header */}
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>HEBDOC</Text>
         <Text style={styles.headerSubtitle}>AI</Text>
       </View>
@@ -120,7 +133,7 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
           onPress={handleSendMessage}
           disabled={!message.trim()}
         >
-          <Text style={styles.sendIcon}>></Text>
+          <Text style={styles.sendIcon}>{'>'}</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -240,6 +253,16 @@ const styles = StyleSheet.create({
   },
   sendIcon: {
     fontSize: 18,
+    color: '#FFFFFF',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 10,
+    top: 10,
+    zIndex: 1,
+  },
+  backButtonText: {
+    fontSize: 16,
     color: '#FFFFFF',
   },
 });

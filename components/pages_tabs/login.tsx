@@ -1,13 +1,14 @@
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 interface LoginPageProps {
@@ -17,9 +18,14 @@ interface LoginPageProps {
 }
 
 export default function LoginPage({ onGoToProfile, onGoToSignup, onSuccessfulAuth }: LoginPageProps) {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleBack = () => {
+    router.back();
+  };
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -51,6 +57,9 @@ export default function LoginPage({ onGoToProfile, onGoToSignup, onSuccessfulAut
     >
       <View style={styles.content}>
         <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Text style={styles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
           <View style={styles.logoContainer}>
             <Text style={styles.logoHerbal}>HERBAL</Text>
             <Text style={styles.logoDoc}>DOC</Text>
@@ -130,6 +139,18 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 60,
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+  },
+  backButtonText: {
+    color: '#6C757D',
+    fontSize: 14,
   },
   logoContainer: {
     alignItems: 'center',

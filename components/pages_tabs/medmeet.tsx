@@ -1,11 +1,12 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 interface MedMeetPageProps {
@@ -57,9 +58,22 @@ const doctors: DoctorProfile[] = [
 ];
 
 export default function MedMeetPage({ onGoBack }: MedMeetPageProps) {
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (onGoBack) {
+      onGoBack();
+    } else {
+      router.back();
+    }
+  };
+
   const handleDoctorSelect = (doctor: DoctorProfile) => {
-    // Handle doctor selection for appointment
-    console.log('Selected doctor:', doctor.name);
+    // Navigate to doctor details page
+    router.push({
+      pathname: '/medmeetDoctor',
+      params: { doctorName: doctor.name }
+    });
   };
 
   const renderStarRating = (rating: number) => {
@@ -75,6 +89,9 @@ export default function MedMeetPage({ onGoBack }: MedMeetPageProps) {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>MEDMEET</Text>
       </View>
 
@@ -199,5 +216,15 @@ const styles = StyleSheet.create({
   },
   starIcon: {
     fontSize: 20,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 20,
+    top: 60,
+    zIndex: 1,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: '#FFFFFF',
   },
 });
