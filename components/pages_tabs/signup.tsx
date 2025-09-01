@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -100,7 +101,7 @@ export default function SignupPage({ onGoToLogin, onSuccessfulAuth }: SignupPage
         password: password
       };
 
-      const response = await axios.post('http://10.229.171.54:5001/consumer/auth/signup', signupData, {
+      const response = await axios.post('http://10.10.45.109:5001/consumer/auth/signup', signupData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -108,7 +109,12 @@ export default function SignupPage({ onGoToLogin, onSuccessfulAuth }: SignupPage
 
       setIsLoading(false);
       
-      if (response.status === 200 || response.status === 201) {
+      if (response.status === 201) {
+        // Store token in AsyncStorage
+        const { token, user } = response.data;
+        await AsyncStorage.setItem('authToken', token);
+        await AsyncStorage.setItem('userData', JSON.stringify(user));
+        
         Alert.alert('Success', 'Account created successfully!', [
           { text: 'OK', onPress: () => onSuccessfulAuth() }
         ]);
@@ -120,8 +126,17 @@ export default function SignupPage({ onGoToLogin, onSuccessfulAuth }: SignupPage
       
       if (error.response) {
         // Server responded with error status
-        const errorMessage = error.response.data?.message || 'Registration failed';
-        Alert.alert('Error', errorMessage);
+        const { status, data } = error.response;
+        
+        if (status === 400 && data.message === 'Email already exists') {
+          Alert.alert('Error', 'An account with this email already exists. Please use a different email or try logging in.');
+        } else if (status === 400) {
+          Alert.alert('Error', data.message || 'Invalid request. Please check your information and try again.');
+        } else if (status === 500) {
+          Alert.alert('Error', 'Server error. Please try again later.');
+        } else {
+          Alert.alert('Error', data.message || 'Registration failed. Please try again.');
+        }
       } else if (error.request) {
         // Network error
         Alert.alert('Error', 'Network error. Please check your connection and try again.');

@@ -1,13 +1,14 @@
+import axios from 'axios';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 interface DoctorDetails {
@@ -63,6 +64,62 @@ export default function MedMeetDoctorPage() {
         },
       ]
     );
+  };
+
+  useEffect(() => {
+    testServerConnection();
+    testTokenValidity();
+    fetchDoctors(); // <-- This calls the axios function
+  }, []);
+
+  const testServerConnection = async () => {
+    try {
+      const response = await axios.get('http://10.10.45.109:5001/consumer/medmeet/getDoctors');
+      console.log('Server connection successful:', response.data);
+    } catch (error) {
+      console.error('Server connection failed:', error);
+      Alert.alert('Error', 'Could not connect to the server. Please check your network or server status.');
+    }
+  };
+
+  const testTokenValidity = async () => {
+    try {
+      const token = 'YOUR_JWT_TOKEN'; // Replace with your actual token
+      const response = await axios.post('http://10.10.45.109:5001/consumer/auth/getDoctors', 
+        { jwt: token },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000, // 10 second timeout
+        }
+      );
+      console.log('Token validity test successful:', response.data);
+    } catch (error) {
+      console.error('Token validity test failed:', error);
+      Alert.alert('Error', 'Token is invalid or expired. Please log in again.');
+    }
+  };
+
+  const fetchDoctors = async () => {
+    try {
+      const token = 'YOUR_JWT_TOKEN'; // Replace with your actual token
+      const response = await axios.post('http://10.10.45.109:5001/consumer/auth/getDoctors', 
+        { jwt: token },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000, // 10 second timeout
+        }
+      );
+      console.log('Doctors fetched successfully:', response.data);
+      // In a real app, you would parse response.data to get doctor details
+      // For now, we'll just log the response
+    } catch (error) {
+      console.error('Failed to fetch doctors:', error);
+      Alert.alert('Error', 'Failed to fetch doctor details. Please try again later.');
+    }
   };
 
   return (
