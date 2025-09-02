@@ -97,6 +97,20 @@ export default function RootLayout() {
             gestureEnabled: true,
           }}
         />
+        <Stack.Screen 
+          name="ingredient" 
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+          }}
+        />
+        <Stack.Screen 
+          name="test-navigation" 
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+          }}
+        />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />
       </Stack>

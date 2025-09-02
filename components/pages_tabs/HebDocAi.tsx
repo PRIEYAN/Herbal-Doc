@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import IngredientHighlighter from '../IngredientHighlighter';
 
 interface HebDocAiPageProps {
   onGoBack?: () => void;
@@ -170,7 +171,7 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
 
     try {
       const response = await axios.post(
-        'http://10.10.25.180:8080/generate',
+        'http://10.10.45.109:8080/generate',
         { instruction: userMessage.text },
         {
           headers: { 'Content-Type': 'application/json' },
@@ -195,6 +196,32 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
     }
   };
 
+  const handleIngredientPress = (ingredient: string) => {
+    console.log('Navigating to ingredient search with:', ingredient);
+    try {
+      // Use the new route structure
+      router.push({
+        pathname: '/ingredient',
+        params: { ingredient }
+      });
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Try alternative navigation
+      try {
+        router.push('/homepage');
+        setTimeout(() => {
+          router.push({
+            pathname: '/ingredient',
+            params: { ingredient }
+          });
+        }, 500);
+      } catch (fallbackError) {
+        console.error('Fallback navigation also failed:', fallbackError);
+        alert(`Navigation failed: ${error}`);
+      }
+    }
+  };
+
   const renderMessage = (msg: ChatMessage) => {
     return (
       <View key={msg.id} style={[
@@ -205,12 +232,19 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
           styles.messageBubble,
           msg.isUser ? styles.userBubble : styles.aiBubble
         ]}>
-          <Text style={[
-            styles.messageText,
-            msg.isUser ? styles.userMessageText : styles.aiMessageText
-          ]}>
-            {msg.text}
-          </Text>
+          {msg.isUser ? (
+            <Text style={[
+              styles.messageText,
+              styles.userMessageText
+            ]}>
+              {msg.text}
+            </Text>
+          ) : (
+            <IngredientHighlighter
+              text={msg.text}
+              onIngredientPress={handleIngredientPress}
+            />
+          )}
         </View>
       </View>
     );

@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://10.10.25.180:5001';
+export const API_BASE_URL = 'http://10.10.45.109:5001';
 
 import axios from 'axios';
 
