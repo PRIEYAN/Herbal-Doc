@@ -1,9 +1,9 @@
-import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Image,
     Linking,
     ScrollView,
     StyleSheet,
@@ -12,14 +12,15 @@ import {
     View
 } from 'react-native';
 
-interface Shop {
+interface Product {
   id: string;
   name: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-  distance: number;
-  type: string;
+  price: string;
+  rating: string;
+  image: string;
+  url: string;
+  platform: 'amazon' | 'flipkart';
+  availability: string;
 }
 
 interface IngredientSearchScreenProps {
@@ -29,82 +30,106 @@ interface IngredientSearchScreenProps {
 
 export default function IngredientSearchScreen({ ingredient, onGoBack }: IngredientSearchScreenProps) {
   const router = useRouter();
-  const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
-  const [shops, setShops] = useState<Shop[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<'amazon' | 'flipkart' | 'both'>('both');
 
   useEffect(() => {
-    getCurrentLocation();
-  }, []);
+    searchProducts();
+  }, [ingredient]);
 
-  const getCurrentLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setError('Location permission denied');
-        setLoading(false);
-        return;
-      }
-
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
-      setUserLocation(location);
-      searchNearbyShops(location.coords.latitude, location.coords.longitude);
-    } catch (err) {
-      setError('Failed to get location');
-      setLoading(false);
-    }
-  };
-
-  const searchNearbyShops = async (lat: number, lng: number) => {
+  const searchProducts = async () => {
     try {
       setLoading(true);
       
-      // For now, let's create some mock data to test the UI
-      const mockShops: Shop[] = [
+      // For now, let's create mock data that simulates Amazon and Flipkart products
+      const mockProducts: Product[] = [
+        // Amazon products
         {
-          id: '1',
-          name: 'Local Pharmacy',
-          address: '123 Main St, City',
-          latitude: lat + 0.001,
-          longitude: lng + 0.001,
-          distance: 0.5,
-          type: 'pharmacy'
+          id: 'amz1',
+          name: `Organic ${ingredient} - Pure Natural`,
+          price: '₹299',
+          rating: '4.5 ★',
+          image: 'https://via.placeholder.com/100x100/FF9900/FFFFFF?text=A',
+          url: `https://www.amazon.in/s?k=${encodeURIComponent(ingredient)}`,
+          platform: 'amazon',
+          availability: 'In Stock'
         },
         {
-          id: '2',
-          name: 'Health Food Store',
-          address: '456 Oak Ave, City',
-          latitude: lat - 0.001,
-          longitude: lng - 0.001,
-          distance: 1.2,
-          type: 'health_food'
+          id: 'amz2',
+          name: `Premium ${ingredient} Extract - 100g`,
+          price: '₹450',
+          rating: '4.2 ★',
+          image: 'https://via.placeholder.com/100x100/FF9900/FFFFFF?text=A',
+          url: `https://www.amazon.in/s?k=${encodeURIComponent(ingredient)}`,
+          platform: 'amazon',
+          availability: 'In Stock'
         },
         {
-          id: '3',
-          name: 'Grocery Market',
-          address: '789 Pine Rd, City',
-          latitude: lat + 0.002,
-          longitude: lng - 0.002,
-          distance: 2.1,
-          type: 'grocery'
+          id: 'amz3',
+          name: `${ingredient} Powder - Ayurvedic`,
+          price: '₹180',
+          rating: '4.7 ★',
+          image: 'https://via.placeholder.com/100x100/FF9900/FFFFFF?text=A',
+          url: `https://www.amazon.in/s?k=${encodeURIComponent(ingredient)}`,
+          platform: 'amazon',
+          availability: 'In Stock'
+        },
+        // Flipkart products
+        {
+          id: 'flip1',
+          name: `${ingredient} Natural - Pure Quality`,
+          price: '₹275',
+          rating: '4.3 ★',
+          image: 'https://via.placeholder.com/100x100/2874F6/FFFFFF?text=F',
+          url: `https://www.flipkart.com/search?q=${encodeURIComponent(ingredient)}`,
+          platform: 'flipkart',
+          availability: 'In Stock'
+        },
+        {
+          id: 'flip2',
+          name: `Organic ${ingredient} - Best Price`,
+          price: '₹320',
+          rating: '4.6 ★',
+          image: 'https://via.placeholder.com/100x100/2874F6/FFFFFF?text=F',
+          url: `https://www.flipkart.com/search?q=${encodeURIComponent(ingredient)}`,
+          platform: 'flipkart',
+          availability: 'In Stock'
+        },
+        {
+          id: 'flip3',
+          name: `${ingredient} Supplement - Health Plus`,
+          price: '₹195',
+          rating: '4.1 ★',
+          image: 'https://via.placeholder.com/100x100/2874F6/FFFFFF?text=F',
+          url: `https://www.flipkart.com/search?q=${encodeURIComponent(ingredient)}`,
+          platform: 'flipkart',
+          availability: 'In Stock'
         }
       ];
 
-      setShops(mockShops);
+      setProducts(mockProducts);
     } catch (err) {
-      setError('Failed to search for shops');
+      setError('Failed to search for products');
     } finally {
       setLoading(false);
     }
   };
 
-  const openInMaps = (shop: Shop) => {
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${shop.latitude},${shop.longitude}`;
+  const openProduct = (product: Product) => {
+    Linking.openURL(product.url).catch(() => {
+      Alert.alert('Error', 'Could not open the product link');
+    });
+  };
+
+  const openPlatformSearch = (platform: 'amazon' | 'flipkart') => {
+    const url = platform === 'amazon' 
+      ? `https://www.amazon.in/s?k=${encodeURIComponent(ingredient)}`
+      : `https://www.flipkart.com/search?q=${encodeURIComponent(ingredient)}`;
+    
     Linking.openURL(url).catch(() => {
-      Alert.alert('Error', 'Could not open maps app');
+      Alert.alert('Error', `Could not open ${platform}`);
     });
   };
 
@@ -115,6 +140,10 @@ export default function IngredientSearchScreen({ ingredient, onGoBack }: Ingredi
       router.back();
     }
   };
+
+  const filteredProducts = selectedPlatform === 'both' 
+    ? products 
+    : products.filter(p => p.platform === selectedPlatform);
 
   if (loading) {
     return (
@@ -127,7 +156,7 @@ export default function IngredientSearchScreen({ ingredient, onGoBack }: Ingredi
         </View>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#20AB7D" />
-          <Text style={styles.loadingText}>Searching for nearby shops...</Text>
+          <Text style={styles.loadingText}>Searching for products...</Text>
         </View>
       </View>
     );
@@ -144,7 +173,7 @@ export default function IngredientSearchScreen({ ingredient, onGoBack }: Ingredi
         </View>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={getCurrentLocation}>
+          <TouchableOpacity style={styles.retryButton} onPress={searchProducts}>
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -160,34 +189,77 @@ export default function IngredientSearchScreen({ ingredient, onGoBack }: Ingredi
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Find {ingredient}</Text>
-        <Text style={styles.headerSubtitle}>{shops.length} shops found</Text>
+        <Text style={styles.headerSubtitle}>{filteredProducts.length} products found</Text>
       </View>
 
-      {/* Map Placeholder */}
-      <View style={styles.mapContainer}>
-        <View style={styles.mapPlaceholder}>
-          <Text style={styles.mapPlaceholderText}>Map will be displayed here</Text>
-          <Text style={styles.mapPlaceholderSubtext}>Using mock data for testing</Text>
-        </View>
+      {/* Platform Filter */}
+      <View style={styles.platformFilter}>
+        <TouchableOpacity 
+          style={[styles.platformButton, selectedPlatform === 'both' && styles.platformButtonActive]}
+          onPress={() => setSelectedPlatform('both')}
+        >
+          <Text style={[styles.platformButtonText, selectedPlatform === 'both' && styles.platformButtonTextActive]}>
+            Both
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.platformButton, selectedPlatform === 'amazon' && styles.platformButtonActive]}
+          onPress={() => setSelectedPlatform('amazon')}
+        >
+          <Text style={[styles.platformButtonText, selectedPlatform === 'amazon' && styles.platformButtonTextActive]}>
+            Amazon
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.platformButton, selectedPlatform === 'flipkart' && styles.platformButtonActive]}
+          onPress={() => setSelectedPlatform('flipkart')}
+        >
+          <Text style={[styles.platformButtonText, selectedPlatform === 'flipkart' && styles.platformButtonTextActive]}>
+            Flipkart
+          </Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Shop List */}
-      <ScrollView style={styles.shopList} showsVerticalScrollIndicator={false}>
-        <Text style={styles.listTitle}>Nearby Shops</Text>
-        {shops.map((shop) => (
+      {/* Quick Search Buttons */}
+      <View style={styles.quickSearchContainer}>
+        <TouchableOpacity 
+          style={styles.quickSearchButton}
+          onPress={() => openPlatformSearch('amazon')}
+        >
+          <Text style={styles.quickSearchButtonText}>Search on Amazon</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.quickSearchButton}
+          onPress={() => openPlatformSearch('flipkart')}
+        >
+          <Text style={styles.quickSearchButtonText}>Search on Flipkart</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Products List */}
+      <ScrollView style={styles.productsList} showsVerticalScrollIndicator={false}>
+        <Text style={styles.listTitle}>Available Products</Text>
+        {filteredProducts.map((product) => (
           <TouchableOpacity
-            key={shop.id}
-            style={styles.shopItem}
-            onPress={() => openInMaps(shop)}
+            key={product.id}
+            style={styles.productItem}
+            onPress={() => openProduct(product)}
           >
-            <View style={styles.shopInfo}>
-              <Text style={styles.shopName}>{shop.name}</Text>
-              <Text style={styles.shopAddress}>{shop.address}</Text>
-              <Text style={styles.shopType}>{shop.type.replace('_', ' ')}</Text>
+            <Image source={{ uri: product.image }} style={styles.productImage} />
+            <View style={styles.productInfo}>
+              <Text style={styles.productName}>{product.name}</Text>
+              <Text style={styles.productPrice}>{product.price}</Text>
+              <Text style={styles.productRating}>{product.rating}</Text>
+              <Text style={styles.productAvailability}>{product.availability}</Text>
             </View>
-            <View style={styles.shopDistance}>
-              <Text style={styles.distanceText}>{shop.distance.toFixed(1)} km</Text>
-              <Text style={styles.directionText}>→</Text>
+            <View style={styles.productPlatform}>
+              <Text style={[
+                styles.platformTag, 
+                product.platform === 'amazon' ? styles.amazonTag : styles.flipkartTag
+              ]}>
+                {product.platform.toUpperCase()}
+              </Text>
+              <Text style={styles.viewText}>View →</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -237,37 +309,59 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
   },
-  mapContainer: {
-    height: 300,
-    margin: 10,
-    borderRadius: 12,
-    overflow: 'hidden',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+  platformFilter: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E9ECEF',
   },
-  mapPlaceholder: {
+  platformButton: {
     flex: 1,
-    backgroundColor: '#E8F5E8',
-    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginHorizontal: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
     alignItems: 'center',
-    borderWidth: 2,
+  },
+  platformButtonActive: {
+    backgroundColor: '#20AB7D',
     borderColor: '#20AB7D',
-    borderStyle: 'dashed',
   },
-  mapPlaceholderText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#20AB7D',
-    marginBottom: 8,
-  },
-  mapPlaceholderSubtext: {
+  platformButtonText: {
     fontSize: 14,
+    fontWeight: '600',
     color: '#7F8C8D',
   },
-  shopList: {
+  platformButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  quickSearchContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#FFFFFF',
+  },
+  quickSearchButton: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginHorizontal: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
+    alignItems: 'center',
+  },
+  quickSearchButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#20AB7D',
+  },
+  productsList: {
     flex: 1,
     paddingHorizontal: 20,
   },
@@ -277,7 +371,7 @@ const styles = StyleSheet.create({
     color: '#2C3E50',
     marginVertical: 15,
   },
-  shopItem: {
+  productItem: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
@@ -290,37 +384,59 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  shopInfo: {
+  productImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  productInfo: {
     flex: 1,
   },
-  shopName: {
+  productName: {
     fontSize: 16,
     fontWeight: '600',
     color: '#2C3E50',
     marginBottom: 4,
   },
-  shopAddress: {
-    fontSize: 14,
-    color: '#7F8C8D',
+  productPrice: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#20AB7D',
     marginBottom: 2,
   },
-  shopType: {
-    fontSize: 12,
-    color: '#20AB7D',
-    textTransform: 'capitalize',
+  productRating: {
+    fontSize: 14,
+    color: '#F39C12',
+    marginBottom: 2,
   },
-  shopDistance: {
+  productAvailability: {
+    fontSize: 12,
+    color: '#27AE60',
+  },
+  productPlatform: {
     alignItems: 'center',
   },
-  distanceText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#20AB7D',
+  platformTag: {
+    fontSize: 10,
+    fontWeight: '700',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    marginBottom: 4,
   },
-  directionText: {
-    fontSize: 18,
+  amazonTag: {
+    backgroundColor: '#FF9900',
+    color: '#FFFFFF',
+  },
+  flipkartTag: {
+    backgroundColor: '#2874F6',
+    color: '#FFFFFF',
+  },
+  viewText: {
+    fontSize: 12,
     color: '#20AB7D',
-    marginTop: 2,
+    fontWeight: '600',
   },
   loadingContainer: {
     flex: 1,

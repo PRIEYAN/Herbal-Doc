@@ -1,8 +1,8 @@
-# Herbal Doc AI - Ingredient Search Feature
+# Herbal Doc AI - E-commerce Product Search Feature
 
 ## Overview
 
-The Herbal Doc AI app now includes a new feature that allows users to find nearby shops selling herbal ingredients. When the AI suggests remedies containing ingredients like "honey", "ginger", "turmeric", etc., these ingredients become clickable and open a map showing nearby shops.
+The Herbal Doc AI app now includes a new feature that allows users to find products containing herbal ingredients on popular e-commerce platforms. When the AI suggests remedies containing ingredients like "honey", "ginger", "turmeric", etc., these ingredients become clickable and open a product search screen showing items from Amazon and Flipkart.
 
 ## Features
 
@@ -11,23 +11,23 @@ The Herbal Doc AI app now includes a new feature that allows users to find nearb
 - Clickable ingredients are styled with a green background and underline
 - Supports a comprehensive list of 200+ herbal ingredients and common food items
 
-### 2. Map Integration
-- Uses React Native Maps to display shop locations
-- Shows user's current location with a green marker
-- Displays shop locations with red markers
-- Interactive map with zoom and pan capabilities
+### 2. E-commerce Integration
+- Searches for products on Amazon India and Flipkart
+- Displays product listings with prices, ratings, and availability
+- Direct links to product pages on both platforms
+- Platform-specific branding and colors
 
-### 3. Shop Search
-- Searches for multiple shop types: pharmacies, grocery stores, health food stores, etc.
-- Uses OpenStreetMap's Overpass API for comprehensive shop data
-- 5km radius search from user's location
-- Sorts results by distance
+### 3. Product Search
+- Shows mock product data for testing
+- Filters by platform (Amazon, Flipkart, or Both)
+- Quick search buttons to open platform search pages
+- Product cards with images, prices, and ratings
 
-### 4. Shop Details
-- Displays shop name, address, and type
-- Shows distance from user's location
-- Clickable shop items that open Google Maps directions
-- Map markers with detailed popups
+### 4. Product Details
+- Displays product name, price, and rating
+- Shows availability status
+- Platform tags (Amazon/Flipkart)
+- Clickable product cards that open platform URLs
 
 ## Technical Implementation
 
@@ -39,58 +39,41 @@ The Herbal Doc AI app now includes a new feature that allows users to find nearb
    - Maintains a comprehensive list of ingredient keywords
 
 2. **IngredientSearchScreen** (`components/IngredientSearchScreen.tsx`)
-   - Main screen for displaying map and shop results
-   - Handles location permissions and GPS access
-   - Manages API calls to Overpass API
-   - Renders interactive map with markers
+   - Main screen for displaying product results
+   - Handles platform filtering and product display
+   - Manages navigation to e-commerce platforms
+   - Renders product cards with mock data
 
-3. **IngredientSearchPage** (`app/ingredientSearch.tsx`)
+3. **IngredientSearchPage** (`app/ingredient/index.tsx`)
    - Expo Router page that wraps the IngredientSearchScreen
    - Receives ingredient parameter from navigation
 
 ### Dependencies
 
-- `expo-location`: For getting user's current location
-- `react-native-maps`: For displaying the interactive map
+- `expo-linking`: For opening external URLs to e-commerce platforms
+- `expo-router`: For navigation between screens
 - `axios`: For making HTTP requests (already included)
 
-### API Integration
+### E-commerce Integration
 
-The app uses OpenStreetMap's Overpass API to search for nearby shops:
+The app integrates with popular Indian e-commerce platforms:
 
 ```javascript
-const query = `
-  [out:json][timeout:25];
-  (
-    node["shop"="${shopType}"](around:${radius},${lat},${lng});
-    way["shop"="${shopType}"](around:${radius},${lat},${lng});
-    relation["shop"="${shopType}"](around:${radius},${lat},${lng});
-  );
-  out body;
-  >;
-  out skel qt;
-`;
+// Amazon search URL
+const amazonUrl = `https://www.amazon.in/s?k=${encodeURIComponent(ingredient)}`;
+
+// Flipkart search URL
+const flipkartUrl = `https://www.flipkart.com/search?q=${encodeURIComponent(ingredient)}`;
 ```
-
-### Permissions
-
-The app requires location permissions:
-
-**Android:**
-- `ACCESS_FINE_LOCATION`
-- `ACCESS_COARSE_LOCATION`
-
-**iOS:**
-- `NSLocationWhenInUseUsageDescription`
-- `NSLocationAlwaysAndWhenInUseUsageDescription`
 
 ## Usage
 
 1. **Start a conversation** with the AI about health concerns
 2. **Receive AI recommendations** with highlighted ingredients
-3. **Tap on any highlighted ingredient** to open the search screen
-4. **View nearby shops** on the map and in the list below
-5. **Tap on a shop** to open directions in Google Maps
+3. **Tap on any highlighted ingredient** to open the product search screen
+4. **View products** from Amazon and Flipkart
+5. **Filter by platform** using the platform buttons
+6. **Tap on products** to open them in the respective e-commerce apps/websites
 
 ## Example AI Response
 
@@ -101,24 +84,26 @@ When a user asks "I have a fever", the AI might respond:
 > 2. Take **turmeric** with warm **milk**
 > 3. Consume **lemon** and **honey** mixture"
 
-The words in bold would be clickable and open the ingredient search screen.
+The words in bold would be clickable and open the product search screen.
 
-## Installation
+## Product Display
 
-1. Install required dependencies:
-   ```bash
-   npm install expo-location react-native-maps
-   ```
-
-2. The app.json file has been updated with necessary permissions and plugins.
-
-3. Rebuild the app to include the new permissions.
+Each product card shows:
+- **Product Image**: Placeholder with platform branding
+- **Product Name**: Descriptive name with ingredient
+- **Price**: In Indian Rupees (₹)
+- **Rating**: Star rating with platform-specific styling
+- **Availability**: Stock status
+- **Platform Tag**: Amazon (orange) or Flipkart (blue)
+- **View Button**: Opens product page
 
 ## Future Enhancements
 
-- Add shop ratings and reviews
-- Filter shops by type (pharmacy, grocery, etc.)
-- Add shop opening hours
-- Implement offline caching for shop data
-- Add favorite shops functionality
-- Include shop contact information 
+- Real product data integration with e-commerce APIs
+- Price comparison between platforms
+- Product reviews and ratings
+- Wishlist functionality
+- Price tracking and alerts
+- Product recommendations based on user preferences
+- Integration with more e-commerce platforms
+- Product availability notifications 
