@@ -1,14 +1,15 @@
+import axios from 'axios';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 interface HebDocAiPageProps {
@@ -28,17 +29,16 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       id: 1,
-      text: "I have throat ace..",
-      isUser: true,
-      timestamp: new Date()
-    },
-    {
-      id: 2,
-      text: "Here are some natural remedies for throat pain:\n\n• Drink ginger tea\n• Use gargling saltwater\n• Take turmeric\n• Avoid alcohol and caffeine",
+      text: 'Hello, I am HebDocAI. How can I help you today?'
+      ,
       isUser: false,
       timestamp: new Date()
     }
   ]);
+  const [isSending, setIsSending] = useState(false);
+  const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const thinkingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const scrollRef = useRef<ScrollView | null>(null);
 
   const handleBack = () => {
     if (onGoBack) {
@@ -48,28 +48,150 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
     }
   };
 
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      const newMessage: ChatMessage = {
-        id: Date.now(),
-        text: message.trim(),
-        isUser: true,
-        timestamp: new Date()
-      };
-      
-      setChatMessages(prev => [...prev, newMessage]);
-      setMessage('');
-      
-      // Simulate AI response
-      setTimeout(() => {
-        const aiResponse: ChatMessage = {
-          id: Date.now() + 1,
-          text: "I understand your concern. Let me provide you with some helpful recommendations based on your symptoms. Would you like me to suggest some herbal remedies or lifestyle changes?",
-          isUser: false,
-          timestamp: new Date()
-        };
-        setChatMessages(prev => [...prev, aiResponse]);
-      }, 1000);
+  const scrollToEnd = () => {
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    });
+  };
+
+  const extractTextAfterInst = (raw: string): string => {
+    try {
+      const marker = '[/INST]';
+      const idx = raw.indexOf(marker);
+      if (idx === -1) return raw.trim();
+      return raw.substring(idx + marker.length).trim();
+    } catch {
+      return raw;
+    }
+  };
+
+  const formatAsNumberedList = (raw: string): string => {
+    const text = raw.replace(/\r\n/g, '\n').trim();
+    let items: string[] = [];
+
+    // Split by common list delimiters first
+    if (/[•\-\u2022]/.test(text)) {
+      items = text.split(/[•\-\u2022]/g);
+    } else if (text.includes('\n')) {
+      items = text.split('\n');
+    } else {
+      // Fallback: split by sentence boundaries
+      items = text.split(/(?<=\.)\s+(?=[A-Z])/g);
+    }
+
+    const cleaned = items
+      .map(s => s.replace(/^\s*\d+\.\s*/, '').trim()) // remove existing numbering
+      .filter(s => s.length > 0);
+
+    if (cleaned.length === 0) {
+      return text; // nothing to format
+    }
+
+    return cleaned.map((s, i) => `${i + 1}. ${s}`).join('\n');
+  };
+
+  const clearTypingTimer = () => {
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+    }
+  };
+
+  const clearThinkingTimer = () => {
+    if (thinkingIntervalRef.current) {
+      clearInterval(thinkingIntervalRef.current);
+      thinkingIntervalRef.current = null;
+    }
+  };
+
+  const typeOutTextIntoMessage = (messageId: number, fullText: string, speedMs: number = 20) => {
+    let currentIndex = 0;
+    clearTypingTimer();
+
+    typingIntervalRef.current = setInterval(() => {
+      currentIndex += 1;
+      const next = fullText.slice(0, currentIndex);
+      setChatMessages(prev => prev.map(m => m.id === messageId ? { ...m, text: next } : m));
+      scrollToEnd();
+
+      if (currentIndex >= fullText.length) {
+        clearTypingTimer();
+      }
+    }, speedMs);
+  };
+
+  useEffect(() => {
+    return () => {
+      clearTypingTimer();
+      clearThinkingTimer();
+    };
+  }, []);
+
+  const startThinkingDots = (messageId: number) => {
+    clearThinkingTimer();
+    let dots = 0;
+    // Seed with one dot immediately for instant feedback
+    setChatMessages(prev => prev.map(m => m.id === messageId ? { ...m, text: '.' } : m));
+    thinkingIntervalRef.current = setInterval(() => {
+      dots = (dots % 3) + 1; // 1..3
+      const text = '.'.repeat(dots);
+      setChatMessages(prev => prev.map(m => m.id === messageId ? { ...m, text } : m));
+      scrollToEnd();
+    }, 500);
+  };
+
+  const handleSendMessage = async () => {
+    if (!message.trim() || isSending) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now(),
+      text: message.trim(),
+      isUser: true,
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setMessage('');
+    scrollToEnd();
+
+    // Add placeholder AI message to show thinking then type response
+    const aiMessageId = Date.now() + 1;
+    const aiPlaceholder: ChatMessage = {
+      id: aiMessageId,
+      text: '',
+      isUser: false,
+      timestamp: new Date()
+    };
+    setChatMessages(prev => [...prev, aiPlaceholder]);
+    scrollToEnd();
+
+    setIsSending(true);
+    startThinkingDots(aiMessageId);
+
+    try {
+      const response = await axios.post(
+        'http://10.10.25.180:8080/generate',
+        { instruction: userMessage.text },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 20000,
+        }
+      );
+
+      const rawResult = response?.data?.result ?? '';
+      const aiText = extractTextAfterInst(String(rawResult));
+      const formatted = formatAsNumberedList(aiText);
+
+      // Stop thinking indicator and start typing effect
+      clearThinkingTimer();
+      typeOutTextIntoMessage(aiMessageId, formatted, 15);
+    } catch (error: any) {
+      clearThinkingTimer();
+      const fallback = 'Sorry, I could not reach the server. Please try again.';
+      setChatMessages(prev => prev.map(m => m.id === aiMessageId ? { ...m, text: fallback } : m));
+    } finally {
+      setIsSending(false);
+      scrollToEnd();
     }
   };
 
@@ -110,9 +232,11 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
 
       {/* Chat Messages */}
       <ScrollView 
+        ref={scrollRef}
         style={styles.chatContainer} 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.chatContent}
+        onContentSizeChange={scrollToEnd}
       >
         {chatMessages.map(renderMessage)}
       </ScrollView>
@@ -127,11 +251,12 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
           onChangeText={setMessage}
           multiline
           maxLength={500}
+          editable={!isSending}
         />
         <TouchableOpacity 
-          style={styles.sendButton} 
+          style={[styles.sendButton, { opacity: !message.trim() || isSending ? 0.6 : 1 }]} 
           onPress={handleSendMessage}
-          disabled={!message.trim()}
+          disabled={!message.trim() || isSending}
         >
           <Text style={styles.sendIcon}>{'>'}</Text>
         </TouchableOpacity>

@@ -1,15 +1,17 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import api, { API_BASE_URL } from '../../constants/api';
 
 interface LoginPageProps {
   onGoToProfile?: () => void;
@@ -34,12 +36,49 @@ export default function LoginPage({ onGoToProfile, onGoToSignup, onSuccessfulAut
     }
 
     setIsLoading(true);
-    
-    // Simulate login process
-    setTimeout(() => {
+
+    try {
+      console.log(`Sending login request to ${API_BASE_URL}/consumer/auth/login`);
+      const response = await api.post('/consumer/auth/login', {
+        email: email.trim(),
+        password: password.trim(),
+      });
+
+      console.log('Login response status:', response.status);
+      console.log('Login response data:', response.data);
+
+      if (response.status === 200) {
+        const { token, user } = response.data || {};
+        if (!token) {
+          throw new Error('Token missing in response');
+        }
+
+        await AsyncStorage.setItem('authToken', token);
+        await AsyncStorage.setItem('userData', JSON.stringify(user || {}));
+
+        setIsLoading(false);
+        onSuccessfulAuth();
+      } else {
+        setIsLoading(false);
+        Alert.alert('Error', 'Login failed. Please try again.');
+      }
+    } catch (error: any) {
       setIsLoading(false);
-      onSuccessfulAuth();
-    }, 1500);
+      if (error.response) {
+        console.log('Login error response:', error.response.status, error.response.data);
+        if (error.response.status === 401) {
+          Alert.alert('Invalid credentials', 'The email or password you entered is incorrect.');
+        } else {
+          Alert.alert('Error', 'Unable to log in. Please try again.');
+        }
+      } else if (error.request) {
+        console.log('Login network error (no response):', error.message);
+        Alert.alert('Network Error', `Cannot reach the server at ${API_BASE_URL}. Make sure it is running and reachable from your device.`);
+      } else {
+        console.log('Login unexpected error:', error?.message || error);
+        Alert.alert('Error', 'An unexpected error occurred.');
+      }
+    }
   };
 
   const handleSignUp = () => {

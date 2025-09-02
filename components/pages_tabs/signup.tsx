@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import api from '../../constants/api';
 
 interface SignupPageProps {
   onGoToLogin?: () => void;
@@ -101,11 +101,7 @@ export default function SignupPage({ onGoToLogin, onSuccessfulAuth }: SignupPage
         password: password
       };
 
-      const response = await axios.post('http://10.10.45.109:5001/consumer/auth/signup', signupData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await api.post('/consumer/auth/signup', signupData);
 
       setIsLoading(false);
       
@@ -125,24 +121,19 @@ export default function SignupPage({ onGoToLogin, onSuccessfulAuth }: SignupPage
       setIsLoading(false);
       
       if (error.response) {
-        // Server responded with error status
         const { status, data } = error.response;
         
-        if (status === 400 && data.message === 'Email already exists') {
-          Alert.alert('Error', 'An account with this email already exists. Please use a different email or try logging in.');
+        if (status === 409) {
+          Alert.alert('Error', 'An account with this email already exists.');
         } else if (status === 400) {
-          Alert.alert('Error', data.message || 'Invalid request. Please check your information and try again.');
-        } else if (status === 500) {
-          Alert.alert('Error', 'Server error. Please try again later.');
+          Alert.alert('Error', data?.message || 'Invalid signup data.');
         } else {
-          Alert.alert('Error', data.message || 'Registration failed. Please try again.');
+          Alert.alert('Error', 'Failed to create account. Please try again.');
         }
       } else if (error.request) {
-        // Network error
-        Alert.alert('Error', 'Network error. Please check your connection and try again.');
+        Alert.alert('Network Error', 'Unable to connect to server. Please check your connection.');
       } else {
-        // Other error
-        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+        Alert.alert('Error', 'An unexpected error occurred.');
       }
     }
   };

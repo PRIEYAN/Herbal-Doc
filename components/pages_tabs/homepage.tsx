@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import api from '../../constants/api';
 
 interface HomePageProps {
   onGoToProfile?: () => void;
@@ -47,14 +47,7 @@ export default function HomePage({ onGoToProfile, onGoToMedMeet, onGoToHebDocAi,
         setUserData(JSON.parse(storedUserData));
       }
 
-      const response = await axios.post('http://10.10.45.109:5001/consumer/auth/jwt', 
-        { token }, 
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await api.post('/consumer/auth/jwt', { token });
 
       if (response.status === 200) {
         setIsTokenValid(true);
