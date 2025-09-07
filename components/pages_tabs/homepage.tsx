@@ -147,7 +147,8 @@ export default function HomePage({ onGoToProfile, onGoToMedMeet, onGoToHebDocAi,
   };
 
   const handleHistory = () => {
-    // Navigate to history
+    // Navigate to history page
+    router.push('/history');
   };
 
   const handleBookmarks = () => {

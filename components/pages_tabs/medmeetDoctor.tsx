@@ -1,14 +1,17 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
+import api from '../../constants/api';
 
 interface DoctorDetails {
   name: string;
@@ -26,6 +29,7 @@ interface DoctorDetails {
 export default function MedMeetDoctorPage() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const [isBooking, setIsBooking] = useState(false);
   
   // Get all the doctor details passed from the previous page
   const doctorName = params.doctorName as string;
@@ -55,23 +59,101 @@ export default function MedMeetDoctorPage() {
     router.back();
   };
 
-  const handleBookAppointment = () => {
-    Alert.alert(
-      'Book Appointment',
-      `Would you like to book an appointment with ${doctorDetails.name}?`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
+  const handleBookAppointment = async () => {
+    try {
+      setIsBooking(true);
+      
+      // Get the auth token from AsyncStorage
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        Alert.alert('Error', 'Please login to book an appointment');
+        return;
+      }
+
+      // For now, we'll use default date and time
+      // In a real app, you'd have a date/time picker
+      const currentDate = new Date();
+      const tomorrow = new Date(currentDate);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      const date = tomorrow.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const time = '10:00'; // Default time
+
+      console.log('Booking appointment with:', {
+        doctorId,
+        date,
+        time
+      });
+
+      const response = await api.post('/consumer/medmeet/fixAppointment', {
+        doctorId: parseInt(doctorId),
+        date,
+        time
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        {
-          text: 'Book Now',
-          onPress: () => {
-            Alert.alert('Success', 'Appointment request sent! The doctor will contact you soon.');
-          },
-        },
-      ]
-    );
+        timeout: 15000
+      });
+
+      console.log('Booking response:', response.data);
+
+      if (response.status === 200) {
+        Alert.alert(
+          '🎉 Appointment Booked Successfully!', 
+          `✅ Your appointment has been confirmed!\n\n📅 Doctor: Dr. ${doctorDetails.name}\n🏥 Hospital: ${doctorDetails.hospital}\n📞 Contact: ${doctorDetails.phoneNumber}\n🆔 Appointment ID: ${response.data.appointmentId}\n\n💡 The doctor will contact you soon to confirm the exact time and date.\n\nThank you for choosing our service!`,
+          [
+            {
+              text: 'View My Appointments',
+              onPress: () => {
+                // Navigate back to the doctors list
+                router.back();
+              }
+            },
+            {
+              text: 'Book Another',
+              style: 'default',
+              onPress: () => {
+                // Stay on the same page to book another doctor
+                console.log('User wants to book another appointment');
+              }
+            }
+          ]
+        );
+      }
+    } catch (error: any) {
+      console.error('Booking error:', error);
+      
+      if (error.response) {
+        const { status, data } = error.response;
+        console.log('Error status:', status);
+        console.log('Error data:', data);
+        
+        switch (status) {
+          case 401:
+            Alert.alert('Authentication Error', 'Please login again to book an appointment');
+            break;
+          case 404:
+            Alert.alert('Error', data.message || 'Doctor or patient not found');
+            break;
+          case 400:
+            Alert.alert('Booking Unavailable', data.message || 'Doctor is already booked');
+            break;
+          case 500:
+            Alert.alert('Server Error', 'Something went wrong. Please try again later.');
+            break;
+          default:
+            Alert.alert('Error', data.message || 'Failed to book appointment');
+        }
+      } else if (error.request) {
+        Alert.alert('Network Error', 'Please check your internet connection and try again.');
+      } else {
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setIsBooking(false);
+    }
   };
 
   return (
@@ -153,14 +235,21 @@ export default function MedMeetDoctorPage() {
         <TouchableOpacity 
           style={[
             styles.bookButton, 
-            doctorDetails.booked !== 'none' && styles.bookButtonDisabled
+            (doctorDetails.booked !== 'none' || isBooking) && styles.bookButtonDisabled
           ]} 
           onPress={handleBookAppointment}
-          disabled={doctorDetails.booked !== 'none'}
+          disabled={doctorDetails.booked !== 'none' || isBooking}
         >
-          <Text style={styles.bookButtonText}>
-            {doctorDetails.booked === 'none' ? 'Book Appointment' : 'Not Available'}
-          </Text>
+          {isBooking ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color="#FFFFFF" />
+              <Text style={styles.bookButtonText}>Booking...</Text>
+            </View>
+          ) : (
+            <Text style={styles.bookButtonText}>
+              {doctorDetails.booked === 'none' ? 'Book Appointment' : 'Not Available'}
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -337,5 +426,10 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '700',
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

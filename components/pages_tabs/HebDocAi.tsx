@@ -171,7 +171,7 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
 
     try {
       const response = await axios.post(
-        'http://10.10.45.109:8080/generate',
+        'http://10.10.5.224:8080/generate',
         { instruction: userMessage.text },
         {
           headers: { 'Content-Type': 'application/json' },

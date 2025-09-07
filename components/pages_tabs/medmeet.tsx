@@ -3,8 +3,10 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
+    ScrollView,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View
 } from 'react-native';
 import api from '../../constants/api';
@@ -122,7 +124,27 @@ export default function MedMeetPage({ onGoBack }: MedMeetPageProps) {
   };
 
   const handleDoctorSelect = (doctor: Doctor) => {
-    // Handle doctor selection
+    console.log('Doctor selected:', doctor.name);
+    try {
+      // Navigate to medmeetDoctor screen with doctor data
+      router.push({
+        pathname: '/medmeetDoctor',
+        params: { 
+          doctorId: doctor.sno.toString(),
+          doctorName: doctor.name,
+          doctorSpecialization: doctor.specialization,
+          doctorHospital: doctor.hospital,
+          doctorAbout: doctor.aboutme,
+          doctorPhone: doctor.phonenumber,
+          doctorEmail: doctor.email,
+          doctorRating: doctor.rating.toString(),
+          doctorStatus: doctor.booked
+        }
+      });
+    } catch (error) {
+      console.error('Navigation error:', error);
+      alert('Failed to open doctor details');
+    }
   };
 
   if (isLoading) {
@@ -144,7 +166,40 @@ export default function MedMeetPage({ onGoBack }: MedMeetPageProps) {
 
   return (
     <View style={styles.container}>
-      {/* Content here */}
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>MedMeet</Text>
+        <Text style={styles.headerSubtitle}>Find Doctors</Text>
+      </View>
+
+      {/* Doctors List */}
+      <ScrollView style={styles.doctorsList} showsVerticalScrollIndicator={false}>
+        <Text style={styles.listTitle}>Available Doctors ({doctors.length})</Text>
+        {doctors.map((doctor) => (
+          <TouchableOpacity
+            key={doctor.sno}
+            style={styles.doctorCard}
+            onPress={() => handleDoctorSelect(doctor)}
+          >
+            <View style={styles.doctorInfo}>
+              <Text style={styles.doctorName}>{doctor.name}</Text>
+              <Text style={styles.doctorSpecialization}>{doctor.specialization}</Text>
+              <Text style={styles.doctorHospital}>{doctor.hospital}</Text>
+              <Text style={styles.doctorAbout}>{doctor.aboutme}</Text>
+            </View>
+            <View style={styles.doctorDetails}>
+              <Text style={styles.doctorRating}>⭐ {doctor.rating || 'No rating'}</Text>
+              <Text style={styles.doctorStatus}>
+                {doctor.booked === 'none' ? 'Available' : 'Booked'}
+              </Text>
+              <Text style={styles.doctorContact}>{doctor.phonenumber}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -164,5 +219,98 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 16,
     color: '#6C757D',
+  },
+  header: {
+    paddingTop: 50,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    backgroundColor: '#20AB7D',
+    alignItems: 'center',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 20,
+    top: 50,
+  },
+  backButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
+  headerTitle: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  headerSubtitle: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginTop: 5,
+  },
+  doctorsList: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+  listTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#343A40',
+  },
+  doctorCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  doctorInfo: {
+    flex: 1,
+  },
+  doctorName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#343A40',
+  },
+  doctorSpecialization: {
+    fontSize: 14,
+    color: '#6C757D',
+    marginTop: 2,
+  },
+  doctorHospital: {
+    fontSize: 14,
+    color: '#6C757D',
+    marginTop: 2,
+  },
+  doctorAbout: {
+    fontSize: 14,
+    color: '#6C757D',
+    marginTop: 5,
+  },
+  doctorDetails: {
+    alignItems: 'flex-end',
+  },
+  doctorRating: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFC107',
+  },
+  doctorStatus: {
+    fontSize: 14,
+    color: '#6C757D',
+    marginTop: 2,
+  },
+  doctorContact: {
+    fontSize: 14,
+    color: '#6C757D',
+    marginTop: 2,
   },
 });

@@ -1,6 +1,6 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Alert, BackHandler } from 'react-native';
@@ -10,27 +10,35 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   useEffect(() => {
     const backAction = () => {
-      Alert.alert('Exit App', 'Are you sure you want to exit?', [
-        {
-          text: 'Cancel',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        { text: 'Yes', onPress: () => BackHandler.exitApp() },
-      ]);
-      return true;
+      // Check if we can go back in the navigation stack
+      if (router.canGoBack()) {
+        router.back();
+        return true; // Prevent default behavior
+      } else {
+        // If we're at the root, show exit confirmation
+        Alert.alert('Exit App', 'Are you sure you want to exit?', [
+          {
+            text: 'Cancel',
+            onPress: () => null,
+            style: 'cancel',
+          },
+          { text: 'Yes', onPress: () => BackHandler.exitApp() },
+        ]);
+        return true;
+      }
     };
 
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
     return () => backHandler.remove();
-  }, []);
+  }, [router]);
 
   if (!loaded) {
     // Async font loading only occurs in development.
@@ -106,6 +114,13 @@ export default function RootLayout() {
         />
         <Stack.Screen 
           name="test-navigation" 
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+          }}
+        />
+        <Stack.Screen 
+          name="history" 
           options={{
             headerShown: false,
             gestureEnabled: true,
