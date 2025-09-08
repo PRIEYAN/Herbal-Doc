@@ -2,14 +2,14 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import IngredientHighlighter from '../IngredientHighlighter';
 
@@ -30,8 +30,7 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       id: 1,
-      text: 'Hello, I am HebDocAI. How can I help you today?'
-      ,
+      text: 'Hello, I am HebDocAI. How can I help you today?',
       isUser: false,
       timestamp: new Date()
     }
@@ -171,7 +170,7 @@ export default function HebDocAiPage({ onGoBack }: HebDocAiPageProps) {
 
     try {
       const response = await axios.post(
-        'http://10.10.5.224:8080/generate',
+        'http://10.10.45.109:8080/generate',
         { instruction: userMessage.text },
         {
           headers: { 'Content-Type': 'application/json' },

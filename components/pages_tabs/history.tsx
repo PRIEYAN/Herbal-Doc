@@ -259,7 +259,6 @@ export default function HistoryPage() {
       </View>
 
       {/* Content */}
-      {console.log('Render - Error:', error, 'Appointments length:', appointments.length, 'Appointments:', appointments)}
       {error ? (
         renderErrorState()
       ) : appointments.length === 0 ? (
